@@ -1,0 +1,32 @@
+services:
+  # MyApp Laravel Service
+  myapp:
+    build: .
+    image: myapp:1.0.0
+    container_name: myapp
+    restart: unless-stopped
+    environment:
+      - API_CONTACT_FORM_BASE_URI=http://host.docker.internal:8080/contacts
+      - SESSION_DRIVER=file
+    volumes:
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    depends_on:
+      - nginx-myapp
+    networks:
+      - myapp-network
+
+  # Nginx Web Server for MyApp
+  nginx-myapp:
+    image: nginx:alpine
+    container_name: nginx-myapp
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - myapp-network
+
+networks:
+  myapp-network:
+    driver: bridge
